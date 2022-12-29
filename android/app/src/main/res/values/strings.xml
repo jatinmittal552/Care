@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Care</string>
+    <string name="facebook_app_id">547083377073124</string>
+    <string name="fb_login_protocol_scheme">fb547083377073124</string>
+    <string name="facebook_client_token">1be15252e4f5c3b2026a844dafabd574</string>
+
+
+</resources>
