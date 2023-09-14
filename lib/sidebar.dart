@@ -146,6 +146,7 @@ class _SideBarState extends State<SideBar> {
       );
   Widget value(){
     final userName = context.watch<UserData>().userData;
+    print(userName);
 
     return Text('$userName',style: TextStyle(fontSize: 20.sp,fontWeight: FontWeight.bold,color: Colors.grey),);
 

@@ -126,7 +126,7 @@ class LoginChoice extends StatelessWidget {
             Expanded(
               child: InkWell(
                 onTap: () {
-                  Navigator.pushReplacement(context,
+                  Navigator.push(context,
                       MaterialPageRoute(builder: (context) => LoginScreen()));
                 },
                 child: Container(

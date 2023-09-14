@@ -48,7 +48,7 @@ class RegisterScreenState extends State<RegisterScreen> {
             body: SingleChildScrollView(
               child: Container(
                 width: 380.w,
-                height: 630.h,
+                height: 600.h,
                 margin: EdgeInsets.only(top: 40,left: 15.w,right: 15.w),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade400,
@@ -60,7 +60,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: 40.h,bottom: 25.h),
+                        padding: EdgeInsets.only(top: 30.h,bottom: 25.h),
                         child: Text('Register/Login',style: TextStyle(fontSize: 20.sp,color: Colors.black,fontWeight: FontWeight.bold),),
                       ),
                       Padding(
@@ -114,17 +114,18 @@ class RegisterScreenState extends State<RegisterScreen> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(26.r),
                             ),
+                            labelText: "Date of Birth",
                             prefixIcon: Icon(Icons.access_time_filled_outlined),
                             suffixIcon: IconButton(
                               onPressed: ()async {
                                   DateTime? dateInput=await showDatePicker(
                                   context: context,
                                   initialDate: DateTime.now(),
-                                  firstDate: DateTime(1980),
-                                  lastDate: DateTime(2023),
+                                  firstDate: DateTime(1940),
+                                  lastDate: DateTime(2025),
                                 );
                                   if(dateInput != null){
-                                    String dateFormate = DateFormat('yyyy-MM-dd').format(dateInput);
+                                    String dateFormate = DateFormat('dd-MM-yyyy').format(dateInput);
                                     setState(() {
                                       dataPicked.text=dateFormate;
                                     });

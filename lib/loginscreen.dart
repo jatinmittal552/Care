@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: Colors.red,fontSize: 15),),
                   ),
                   onTap: (){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ForgetPassword()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ForgetPassword()));
                   },
                 ),
                 ElevatedButton(

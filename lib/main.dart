@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:practice/bluetooth.dart';
 import 'package:practice/facebooklogin.dart';
 import 'package:practice/googlelogin.dart';
 import 'package:practice/navigation_provider.dart';
@@ -24,6 +25,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:practice/utils.dart';
 import 'package:practice/userData.dart';
+import './bluetooth_serial.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:app_settings/app_settings.dart';
+
+import 'bluetooth_serial.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,15 +58,7 @@ class MyApp extends StatelessWidget {
 
 
       return ScreenUtilInit(
-        builder: (context,child) => StreamBuilder(
-          initialData: FirebaseAuth.instance.currentUser,
-        stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context,snapshot) {
-            if (!snapshot.hasData) {
-              return SplashScreen();
-            }
-
-            return MaterialApp(
+        builder: (context,child) =>  MaterialApp(
               scaffoldMessengerKey: messengerKey,
               navigatorKey: navigatorKey,
               title: 'Care',
@@ -70,9 +68,7 @@ class MyApp extends StatelessWidget {
                 scaffoldBackgroundColor: Colors.black,
               ),
               home: SplashScreen()
-            );
-          }
-        ),
+            ),
         designSize: const Size(350, 750),
       );
   }
@@ -88,8 +84,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  final flutterBlue = FlutterBluePlus.instance;
+  late BluetoothDevice targetDevice;
   var isRecording;
   var list=[];
+  int? _rssi;
+  bool value = false;
+
 
   void performTask() {
     Timer.periodic(
@@ -110,6 +112,72 @@ class _MyHomePageState extends State<MyHomePage> {
         // isRecording == true ? print("Working Task") : t.cancel(),
       },
     );
+  }
+
+  Future check(bool v) async{
+    bool isBluetoothOn = await flutterBlue.isOn;
+    if (isBluetoothOn) {
+      print("Bluetooth is On");
+      List<BluetoothDevice> devices = await flutterBlue.connectedDevices;
+      print("helllo");
+      for(BluetoothDevice device in devices){
+        print("hiii");
+        print("Connected device: ${device.name}");
+        device.disconnect();
+        device.connect();
+        targetDevice = device;
+
+        bool isConnected = device.state == BluetoothDeviceState.connected;
+
+        print(isConnected);
+
+
+
+        if(isConnected){
+          print("plsssss");
+        }
+      }
+
+    }else{
+      print("Bluetooth is not enabled");
+      await AppSettings.openBluetoothSettings();
+    }
+
+
+    trying(v);
+
+
+    // print("rssi value : ${targetDevice!.readRssi()}");
+
+
+  }
+
+  void trying(bool v) async {
+    Timer.periodic(Duration(milliseconds: 5), (timer) async {
+
+      final rssi = await targetDevice.readRssi();
+      setState(() {
+        _rssi = rssi;
+      });
+      print("hello");
+
+      if(rssi<-69 ){
+        print("hel");
+        FlutterRingtonePlayer.playRingtone();
+        timer.cancel();
+      }
+      timerStop(timer,v);
+      // print("Rssi value : ${_rssi}");
+    });
+
+  }
+  void timerStop(Timer timer,bool v){
+    if(!v){
+      print("enter");
+
+      timer.cancel();
+
+    }
   }
 
   @override
@@ -134,23 +202,36 @@ class _MyHomePageState extends State<MyHomePage> {
                 colorOff: Colors.grey,
                 width: 80,
                 onChanged:(bool position) {
-                  var i=10000;
-                  if (position == true){
-                    Random random=new Random();
-                      for(int i=0;i<1000000;i++){
-                        var n=random.nextInt(50);
-                        print("$n");
-                        // print("Enter your number");
-                        // var n=stdin.readLineSync();
-                        // if(n!=null){
-                        //   var num=int.parse(n);
-                        // }
-                        list.add(n);
-                        if(list[i]==30){
-                          print("great");
-                          break;
-                  }
-                  }}},
+                  position ?
+                      check(position)
+
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => bluetooth()))
+                      :
+                      // trying(position);
+                          FlutterRingtonePlayer.stop();
+                  setState(() {
+                    _rssi=null;
+                  });
+
+
+                  // var i=10000;
+                  // if (position == true){
+                  //   Random random=new Random();
+                  //     for(int i=0;i<1000000;i++){
+                  //       var n=random.nextInt(50);
+                  //       print("$n");
+                  //       // print("Enter your number");
+                  //       // var n=stdin.readLineSync();
+                  //       // if(n!=null){
+                  //       //   var num=int.parse(n);
+                  //       // }
+                  //       list.add(n);
+                  //       if(list[i]==30){
+                  //         print("great");
+                  //         break;
+                  // }
+                  // }}
+                },
                 onTap: (){},
                 onDoubleTap: (){},
                 onSwipe: (){},
@@ -234,7 +315,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               ),
+              child: Center(child: Text("$_rssi dB",style: TextStyle(fontSize: 20,color: Colors.red),)),
             ),
+
 
             Container(margin: EdgeInsets.only(top: 15,left: 15,right: 15,bottom: 12),child: Text("Special Sponsors",style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),)),
             Container(
